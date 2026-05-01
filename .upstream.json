@@ -1,0 +1,6 @@
+{
+  "type": "npm",
+  "npm": "@marcfargas/pi-test-harness",
+  "repository": "https://github.com/marcfargas/pi-test-harness.git",
+  "version": "0.5.0"
+}

@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "source": "ssh://git@gitlab-ssh.elches.dev:2222/agents/primecodex/extensions/pi-test-harness.git",
+  "description": "Test harness for Pi extensions — in-process session testing, package install verification, and subprocess mocking."
+}

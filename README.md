@@ -1,6 +1,13 @@
-# @marcfargas/pi-test-harness
+# @gaodes/pi-test-harness
+
+> **Fork of [@marcfargas/pi-test-harness](https://github.com/marcfargas/pi-test-harness)** by [Marc Fargas](https://github.com/marcfargas) — MIT License
+>
+> This fork is maintained by [El Che](https://github.com/gaodes) under the `@gaodes` npm scope.
+> The original project and author retain full credit for their work.
 
 Test harness for [pi](https://github.com/mariozechner/pi-coding-agent) extensions — in-process session testing with playbook-driven model mocking, package install verification, and subprocess mocking.
+
+[**Source**](https://github.com/gaodes/pi-test-harness) · [**npm**](https://www.npmjs.com/package/@gaodes/pi-test-harness) · [**Upstream**](https://github.com/marcfargas/pi-test-harness)
 
 ## Why
 
@@ -13,7 +20,7 @@ The result: tests that exercise real code paths, in ~10 lines of setup, with zer
 ## Install
 
 ```bash
-npm install --save-dev @marcfargas/pi-test-harness
+npm install --save-dev @gaodes/pi-test-harness
 ```
 
 ### Peer dependencies
@@ -28,9 +35,11 @@ npm install --save-dev @marcfargas/pi-test-harness
 import { describe, it, expect, afterEach } from "vitest";
 import {
   createTestSession,
-  when, calls, says,
+  when,
+  calls,
+  says,
   type TestSession,
-} from "@marcfargas/pi-test-harness";
+} from "@gaodes/pi-test-harness";
 
 describe("my extension", () => {
   let t: TestSession;
@@ -51,7 +60,7 @@ describe("my extension", () => {
       when("List files in the project", [
         calls("bash", { command: "ls" }),
         says("Found 2 files: file1.txt and file2.txt"),
-      ]),
+      ])
     );
 
     expect(t.events.toolResultsFor("bash")).toHaveLength(1);
@@ -83,11 +92,11 @@ describe("my extension", () => {
 
 Three substitution points at the boundary — everything else runs through pi's real code:
 
-| What | Substituted with | Purpose |
-|------|-----------------|---------|
-| `streamFn` | Playbook | Scripts what the model "decides" |
-| `tool.execute()` | Mock handler | Controls what tools "return" (hooks still fire) |
-| `ctx.ui.*` | Mock UI | Controls what the user "answers" |
+| What             | Substituted with | Purpose                                         |
+| ---------------- | ---------------- | ----------------------------------------------- |
+| `streamFn`       | Playbook         | Scripts what the model "decides"                |
+| `tool.execute()` | Mock handler     | Controls what tools "return" (hooks still fire) |
+| `ctx.ui.*`       | Mock UI          | Controls what the user "answers"                |
 
 ## Playbook DSL
 
@@ -102,7 +111,7 @@ when("Deploy the app", [
   calls("bash", { command: "npm run build" }),
   calls("bash", { command: "gcloud run deploy" }),
   says("Deployed successfully."),
-])
+]);
 ```
 
 ### `calls(tool, params)`
@@ -110,8 +119,8 @@ when("Deploy the app", [
 The model calls a tool. Pi's hooks fire, the tool executes (real or mocked), result feeds back:
 
 ```typescript
-calls("plan_mode", { enable: true })
-calls("bash", { command: "ls -la" })
+calls("plan_mode", { enable: true });
+calls("bash", { command: "ls -la" });
 ```
 
 ### `says(text)`
@@ -119,7 +128,7 @@ calls("bash", { command: "ls -la" })
 The model emits text. The agent turn ends:
 
 ```typescript
-says("All done. The deployment is complete.")
+says("All done. The deployment is complete.");
 ```
 
 ### Multi-turn conversations
@@ -135,7 +144,7 @@ await t.run(
   when("Now read the README", [
     calls("read", { path: "README.md" }),
     says("Here's what it says..."),
-  ]),
+  ])
 );
 ```
 
@@ -175,7 +184,9 @@ await t.run(
   when("Create and approve a plan", [
     calls("plan_propose", {
       title: "Send invoice",
-      steps: [{ description: "Send email", tool: "go-easy", operation: "send" }],
+      steps: [
+        { description: "Send email", tool: "go-easy", operation: "send" },
+      ],
     }).then((result) => {
       // Extract the plan ID from the tool result
       planId = result.text.match(/PLAN-[a-f0-9]+/)![0];
@@ -183,7 +194,7 @@ await t.run(
     // Late-bound: params resolved at call time, after .then() has fired
     calls("plan_approve", () => ({ id: planId })),
     says("Plan approved and executing."),
-  ]),
+  ])
 );
 
 expect(planId).toMatch(/^PLAN-/);
@@ -197,10 +208,10 @@ Extensions that call `ctx.ui.confirm()`, `ctx.ui.select()`, etc. get mock respon
 const t = await createTestSession({
   extensions: ["./src/index.ts"],
   mockUI: {
-    confirm: false,                    // deny all confirmations
-    select: 0,                         // always pick first item
-    input: "user input text",          // return fixed string
-    editor: "edited content",          // return fixed string
+    confirm: false, // deny all confirmations
+    select: 0, // always pick first item
+    input: "user input text", // return fixed string
+    editor: "edited content", // return fixed string
   },
 });
 
@@ -228,30 +239,30 @@ Every session event, tool call, tool result, message, and UI interaction is coll
 
 ```typescript
 // Tool events
-t.events.toolCallsFor("bash")        // ToolCallRecord[] for "bash"
-t.events.toolResultsFor("bash")      // ToolResultRecord[] for "bash"
-t.events.blockedCalls()              // tools blocked by hooks (e.g., plan mode)
+t.events.toolCallsFor("bash"); // ToolCallRecord[] for "bash"
+t.events.toolResultsFor("bash"); // ToolResultRecord[] for "bash"
+t.events.blockedCalls(); // tools blocked by hooks (e.g., plan mode)
 
 // UI events
-t.events.uiCallsFor("notify")       // UICallRecord[] for notify()
-t.events.uiCallsFor("confirm")      // UICallRecord[] for confirm()
+t.events.uiCallsFor("notify"); // UICallRecord[] for notify()
+t.events.uiCallsFor("confirm"); // UICallRecord[] for confirm()
 
 // Messages and raw events
-t.events.messages                    // AgentMessage[]
-t.events.all                        // AgentSessionEvent[] (everything)
+t.events.messages; // AgentMessage[]
+t.events.all; // AgentSessionEvent[] (everything)
 ```
 
 ### ToolResultRecord
 
 ```typescript
 interface ToolResultRecord {
-  step: number;                // playbook step index
+  step: number; // playbook step index
   toolName: string;
   toolCallId: string;
-  text: string;                // concatenated text content
+  text: string; // concatenated text content
   content: Array<{ type: string; text?: string }>;
   isError: boolean;
-  mocked: boolean;             // true if mockTools handled it
+  mocked: boolean; // true if mockTools handled it
 }
 ```
 
@@ -309,7 +320,7 @@ Playbook not fully consumed after run() completed.
 Catches broken packages before publish — verifies that `npm pack` → install → load actually works:
 
 ```typescript
-import { verifySandboxInstall } from "@marcfargas/pi-test-harness";
+import { verifySandboxInstall } from "@gaodes/pi-test-harness";
 
 const result = await verifySandboxInstall({
   packageDir: "./packages/my-extension",
@@ -331,12 +342,14 @@ const result = await verifySandboxInstall({
   packageDir: "./packages/my-extension",
   expect: { extensions: 1 },
   smoke: {
-    mockTools: { bash: "ok", read: "contents", write: "written", edit: "edited" },
+    mockTools: {
+      bash: "ok",
+      read: "contents",
+      write: "written",
+      edit: "edited",
+    },
     script: [
-      when("Test", [
-        calls("my_tool", { value: "test" }),
-        says("Works."),
-      ]),
+      when("Test", [calls("my_tool", { value: "test" }), says("Works.")]),
     ],
   },
 });
@@ -347,10 +360,10 @@ const result = await verifySandboxInstall({
 For extensions that spawn `pi --mode json -p` as a subprocess (e.g., subagent orchestrators), `createMockPi()` puts a fake `pi` binary in PATH that returns controllable responses.
 
 ```typescript
-import { createMockPi } from "@marcfargas/pi-test-harness";
+import { createMockPi } from "@gaodes/pi-test-harness";
 
 const mockPi = createMockPi();
-mockPi.install();  // creates temp dir with pi shim, prepends PATH
+mockPi.install(); // creates temp dir with pi shim, prepends PATH
 
 // Queue responses (consumed in order, last one repeats)
 mockPi.onCall({ output: "Hello from agent", exitCode: 0 });
@@ -358,7 +371,10 @@ mockPi.onCall({ stderr: "agent crashed", exitCode: 1 });
 mockPi.onCall({
   jsonl: [
     { type: "tool_execution_start", toolName: "bash" },
-    { type: "message_end", message: { role: "assistant", content: [{ type: "text", text: "done" }] } },
+    {
+      type: "message_end",
+      message: { role: "assistant", content: [{ type: "text", text: "done" }] },
+    },
   ],
 });
 
@@ -375,7 +391,7 @@ mockPi.reset();
 expect(mockPi.callCount()).toBe(0);
 
 // Cleanup
-mockPi.uninstall();  // restores PATH, deletes temp dir
+mockPi.uninstall(); // restores PATH, deletes temp dir
 ```
 
 ### How it works
@@ -388,14 +404,14 @@ mockPi.uninstall();  // restores PATH, deletes temp dir
 
 ### Response options
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `output` | `string` | echo task | Text in the `message_end` event |
-| `exitCode` | `number` | `0` | Process exit code |
-| `stderr` | `string` | — | Written to stderr |
-| `delay` | `number` | `0` | Delay in ms before responding |
-| `jsonl` | `object[]` | — | Raw JSONL events (replaces default `message_end`) |
-| `writeFiles` | `Record<string, string>` | — | Files to create (path → content) |
+| Field        | Type                     | Default   | Description                                       |
+| ------------ | ------------------------ | --------- | ------------------------------------------------- |
+| `output`     | `string`                 | echo task | Text in the `message_end` event                   |
+| `exitCode`   | `number`                 | `0`       | Process exit code                                 |
+| `stderr`     | `string`                 | —         | Written to stderr                                 |
+| `delay`      | `number`                 | `0`       | Delay in ms before responding                     |
+| `jsonl`      | `object[]`               | —         | Raw JSONL events (replaces default `message_end`) |
+| `writeFiles` | `Record<string, string>` | —         | Files to create (path → content)                  |
 
 ### Safety features
 
@@ -409,11 +425,11 @@ Designed for **serial subprocess spawns** within a single test. If your test spa
 
 ### Test layer summary
 
-| Layer | What it mocks | Use when |
-|-------|--------------|----------|
-| `createTestSession` | LLM (`streamFn`) | Testing extension logic in-process |
-| `verifySandboxInstall` | Nothing (real install) | Verifying npm package works |
-| `createMockPi` | pi CLI binary | Testing subprocess-spawning extensions |
+| Layer                  | What it mocks          | Use when                               |
+| ---------------------- | ---------------------- | -------------------------------------- |
+| `createTestSession`    | LLM (`streamFn`)       | Testing extension logic in-process     |
+| `verifySandboxInstall` | Nothing (real install) | Verifying npm package works            |
+| `createMockPi`         | pi CLI binary          | Testing subprocess-spawning extensions |
 
 ## API Reference
 
@@ -421,39 +437,39 @@ Designed for **serial subprocess spawns** within a single test. If your test spa
 
 Creates a test session with a real pi environment.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `extensions` | `string[]` | `[]` | Extension file paths to load |
-| `extensionFactories` | `Function[]` | `[]` | Inline extension factory functions |
-| `cwd` | `string` | auto temp dir | Working directory (cleaned on dispose if auto) |
-| `systemPrompt` | `string` | — | Override the system prompt |
-| `mockTools` | `Record<string, MockToolHandler>` | — | Tool execution interceptors |
-| `mockUI` | `MockUIConfig` | defaults | UI mock configuration |
-| `propagateErrors` | `boolean` | `true` | Abort test on real tool throw |
+| Option               | Type                              | Default       | Description                                    |
+| -------------------- | --------------------------------- | ------------- | ---------------------------------------------- |
+| `extensions`         | `string[]`                        | `[]`          | Extension file paths to load                   |
+| `extensionFactories` | `Function[]`                      | `[]`          | Inline extension factory functions             |
+| `cwd`                | `string`                          | auto temp dir | Working directory (cleaned on dispose if auto) |
+| `systemPrompt`       | `string`                          | —             | Override the system prompt                     |
+| `mockTools`          | `Record<string, MockToolHandler>` | —             | Tool execution interceptors                    |
+| `mockUI`             | `MockUIConfig`                    | defaults      | UI mock configuration                          |
+| `propagateErrors`    | `boolean`                         | `true`        | Abort test on real tool throw                  |
 
 Returns `Promise<TestSession>`.
 
 ### `TestSession`
 
-| Property / Method | Type | Description |
-|-------------------|------|-------------|
-| `run(...turns)` | `Promise<void>` | Run the conversation script |
-| `session` | `AgentSession` | The real pi session underneath |
-| `cwd` | `string` | Working directory |
-| `events` | `TestEvents` | All collected events |
-| `playbook` | `{ consumed, remaining }` | Playbook consumption state |
-| `dispose()` | `void` | Cleanup temp dir and session |
+| Property / Method | Type                      | Description                    |
+| ----------------- | ------------------------- | ------------------------------ |
+| `run(...turns)`   | `Promise<void>`           | Run the conversation script    |
+| `session`         | `AgentSession`            | The real pi session underneath |
+| `cwd`             | `string`                  | Working directory              |
+| `events`          | `TestEvents`              | All collected events           |
+| `playbook`        | `{ consumed, remaining }` | Playbook consumption state     |
+| `dispose()`       | `void`                    | Cleanup temp dir and session   |
 
 ### `verifySandboxInstall(options)`
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `packageDir` | `string` | Package directory (must have `package.json`) |
-| `expect.extensions` | `number` | Expected extension count |
-| `expect.tools` | `string[]` | Expected tool names |
-| `expect.skills` | `number` | Expected skill count |
-| `smoke.mockTools` | `Record<string, MockToolHandler>` | Mock tools for smoke test |
-| `smoke.script` | `Turn[]` | Playbook script for smoke test |
+| Option              | Type                              | Description                                  |
+| ------------------- | --------------------------------- | -------------------------------------------- |
+| `packageDir`        | `string`                          | Package directory (must have `package.json`) |
+| `expect.extensions` | `number`                          | Expected extension count                     |
+| `expect.tools`      | `string[]`                        | Expected tool names                          |
+| `expect.skills`     | `number`                          | Expected skill count                         |
+| `smoke.mockTools`   | `Record<string, MockToolHandler>` | Mock tools for smoke test                    |
+| `smoke.script`      | `Turn[]`                          | Playbook script for smoke test               |
 
 ### `createMockPi()`
 
@@ -461,22 +477,22 @@ Creates a mock pi CLI with file-based response queue.
 
 Returns `MockPi`:
 
-| Property / Method | Type | Description |
-|-------------------|------|-------------|
-| `install()` | `void` | Create shim, prepend to PATH |
-| `uninstall()` | `void` | Restore PATH, delete temp dir |
-| `onCall(response)` | `void` | Queue a `MockPiCall` response |
-| `reset()` | `void` | Clear queue and counter |
-| `callCount()` | `number` | Number of times mock pi was invoked |
-| `dir` | `string` | Temp directory path |
+| Property / Method  | Type     | Description                         |
+| ------------------ | -------- | ----------------------------------- |
+| `install()`        | `void`   | Create shim, prepend to PATH        |
+| `uninstall()`      | `void`   | Restore PATH, delete temp dir       |
+| `onCall(response)` | `void`   | Queue a `MockPiCall` response       |
+| `reset()`          | `void`   | Clear queue and counter             |
+| `callCount()`      | `number` | Number of times mock pi was invoked |
+| `dir`              | `string` | Temp directory path                 |
 
 ### `MockToolHandler`
 
 ```typescript
 type MockToolHandler =
-  | string                                             // static text
-  | ToolResult                                         // full result object
-  | ((params: Record<string, unknown>) => string | ToolResult);  // dynamic
+  | string // static text
+  | ToolResult // full result object
+  | ((params: Record<string, unknown>) => string | ToolResult); // dynamic
 ```
 
 ### `MockUIConfig`
@@ -484,8 +500,13 @@ type MockToolHandler =
 ```typescript
 interface MockUIConfig {
   confirm?: boolean | ((title: string, message: string) => boolean);
-  select?: number | string | ((title: string, items: string[]) => string | undefined);
-  input?: string | ((title: string, placeholder?: string) => string | undefined);
+  select?:
+    | number
+    | string
+    | ((title: string, items: string[]) => string | undefined);
+  input?:
+    | string
+    | ((title: string, placeholder?: string) => string | undefined);
   editor?: string | ((title: string, prefilled?: string) => string | undefined);
 }
 ```
@@ -495,7 +516,7 @@ interface MockUIConfig {
 Thrown (and exported) when an extension hook blocks a mocked tool call. Use with `instanceof` to assert that a specific tool was blocked rather than crashed:
 
 ```typescript
-import { ToolBlockedError } from "@marcfargas/pi-test-harness";
+import { ToolBlockedError } from "@gaodes/pi-test-harness";
 
 // Verify a tool was blocked (not just errored)
 const result = t.events.toolResultsFor("bash")[0];
@@ -503,7 +524,9 @@ expect(result.isError).toBe(true);
 
 // Or catch it in error-propagation scenarios
 try {
-  await t.run(when("Try write", [calls("bash", { command: "rm -rf /" }), says("Done.")]));
+  await t.run(
+    when("Try write", [calls("bash", { command: "rm -rf /" }), says("Done.")])
+  );
 } catch (err) {
   if (err instanceof ToolBlockedError) {
     // Expected — extension hook blocked the call
@@ -522,13 +545,21 @@ Removes a file, swallowing `EPERM`/`EBUSY` errors only. Intended for `afterEach`
 Testing an extension that registers 8 tools, blocks writes in plan mode, and manages plan lifecycle:
 
 ```typescript
-import { createTestSession, when, calls, says, type TestSession } from "@marcfargas/pi-test-harness";
+import {
+  createTestSession,
+  when,
+  calls,
+  says,
+  type TestSession,
+} from "@gaodes/pi-test-harness";
 import * as path from "node:path";
 
 const EXTENSION = path.resolve(__dirname, "../../src/index.ts");
 const MOCKS = {
   bash: (p: Record<string, unknown>) => `mock: ${p.command}`,
-  read: "mock contents", write: "mock written", edit: "mock edited",
+  read: "mock contents",
+  write: "mock written",
+  edit: "mock edited",
 };
 
 describe("pi-planner", () => {
@@ -556,7 +587,7 @@ describe("pi-planner", () => {
           planId = r.text.match(/PLAN-[a-f0-9]+/)![0];
         }),
         says("Plan proposed."),
-      ]),
+      ])
     );
 
     expect(planId).toMatch(/^PLAN-/);
@@ -575,7 +606,7 @@ describe("pi-planner", () => {
 On Windows, this means `rmSync(dbPath)` in `afterEach` throws `EPERM`. Use `safeRmSync` instead:
 
 ```typescript
-import { safeRmSync } from "@marcfargas/pi-test-harness";
+import { safeRmSync } from "@gaodes/pi-test-harness";
 
 afterEach(() => {
   // Dispose session first, then attempt file cleanup

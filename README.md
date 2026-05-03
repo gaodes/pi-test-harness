@@ -60,7 +60,7 @@ describe("my extension", () => {
       when("List files in the project", [
         calls("bash", { command: "ls" }),
         says("Found 2 files: file1.txt and file2.txt"),
-      ])
+      ]),
     );
 
     expect(t.events.toolResultsFor("bash")).toHaveLength(1);
@@ -144,7 +144,7 @@ await t.run(
   when("Now read the README", [
     calls("read", { path: "README.md" }),
     says("Here's what it says..."),
-  ])
+  ]),
 );
 ```
 
@@ -194,7 +194,7 @@ await t.run(
     // Late-bound: params resolved at call time, after .then() has fired
     calls("plan_approve", () => ({ id: planId })),
     says("Plan approved and executing."),
-  ])
+  ]),
 );
 
 expect(planId).toMatch(/^PLAN-/);
@@ -525,7 +525,7 @@ expect(result.isError).toBe(true);
 // Or catch it in error-propagation scenarios
 try {
   await t.run(
-    when("Try write", [calls("bash", { command: "rm -rf /" }), says("Done.")])
+    when("Try write", [calls("bash", { command: "rm -rf /" }), says("Done.")]),
   );
 } catch (err) {
   if (err instanceof ToolBlockedError) {
@@ -587,7 +587,7 @@ describe("pi-planner", () => {
           planId = r.text.match(/PLAN-[a-f0-9]+/)![0];
         }),
         says("Plan proposed."),
-      ])
+      ]),
     );
 
     expect(planId).toMatch(/^PLAN-/);

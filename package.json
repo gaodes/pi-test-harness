@@ -1,13 +1,16 @@
 {
 	"name": "@gaodes/pi-test-harness",
-	"version": "1.0.0",
-	"description": "Test harness for pi extensions \u2014 in-process session testing, package install verification, and subprocess mocking",
-	"author": "Marc Fargas",
+	"version": "1.0.1",
+	"description": "Test harness for pi extensions — in-process session testing, package install verification, and subprocess mocking",
+	"author": "Marc Fargas (https://github.com/marcfargas)",
+	"contributors": [
+		"El Che (https://github.com/gaodes)"
+	],
 	"license": "MIT",
 	"type": "module",
 	"repository": {
 		"type": "git",
-		"url": "ssh://git@gitlab-ssh.elches.dev:2222/agents/primecodex/extensions/pi-test-harness.git"
+		"url": "git+https://github.com/gaodes/pi-test-harness.git"
 	},
 	"keywords": [
 		"pi",
@@ -31,7 +34,8 @@
 		"src/**/*.ts",
 		"src/**/*.mjs",
 		"README.md",
-		"LICENSE"
+		"LICENSE",
+		"CHANGELOG.md"
 	],
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json && node -e \"require('fs').copyFileSync('src/mock-pi-script.mjs','dist/mock-pi-script.mjs')\"",

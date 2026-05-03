@@ -1,4 +1,23 @@
-# @marcfargas/pi-test-harness
+# @gaodes/pi-test-harness
+
+> This is a fork of [@marcfargas/pi-test-harness](https://github.com/marcfargas/pi-test-harness) by [Marc Fargas](https://github.com/marcfargas).
+> All versions prior to 1.0.0 are credited to the original author.
+
+## 1.0.1 - 2026-05-03
+
+### Changed
+
+- Point package metadata and npm README links at the public `gaodes/pi-test-harness` GitHub mirror.
+- Update README install commands and imports to use `@gaodes/pi-test-harness`.
+- Include `CHANGELOG.md` in the published package.
+- Normalize upstream provenance metadata.
+
+## 1.0.0 - 2026-05-01
+
+### Changed
+
+- Renamed package from `@marcfargas/pi-test-harness` to `@gaodes/pi-test-harness`
+- Published under `@gaodes` npm scope
 
 ## 0.5.0
 

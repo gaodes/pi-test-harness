@@ -18,9 +18,9 @@ import {
 	SessionManager,
 	SettingsManager,
 	type AgentSessionEvent,
-} from "@mariozechner/pi-coding-agent";
-import type { AgentTool } from "@mariozechner/pi-agent-core";
-import { getModel } from "@mariozechner/pi-ai";
+} from "@earendil-works/pi-coding-agent";
+import type { AgentTool } from "@earendil-works/pi-agent-core";
+import { getModel } from "@earendil-works/pi-ai";
 import { createPlaybookStreamFn, type PlaybookState } from "./playbook.js";
 import { interceptToolExecution } from "./mock-tools.js";
 import { createMockUIContext } from "./mock-ui.js";

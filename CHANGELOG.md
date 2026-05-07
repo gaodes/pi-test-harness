@@ -3,6 +3,12 @@
 > This is a fork of [@marcfargas/pi-test-harness](https://github.com/marcfargas/pi-test-harness) by [Marc Fargas](https://github.com/marcfargas).
 > All versions prior to 1.0.0 are credited to the original author.
 
+## 1.0.2 - 2026-05-08
+
+### Changed
+
+- Updated peer and dev dependencies from `@mariozechner/*` to `@earendil-works/*` following the Pi 0.74.0 scope migration.
+
 ## 1.0.1 - 2026-05-03
 
 ### Changed
